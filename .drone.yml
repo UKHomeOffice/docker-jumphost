@@ -1,0 +1,29 @@
+---
+matrix:
+  ARTIFACTORY_USERNAME:
+    - regt-build-bot
+  DOCKER_USERNAME:
+    - regt-build-bot
+
+pipeline:
+
+  build_image:
+    image: quay.io/ukhomeofficedigital/drone-docker
+    registry: docker.digital.homeoffice.gov.uk
+    repo: docker.digital.homeoffice.gov.uk/rt/schema-base
+    secrets: [ DOCKER_PASSWORD ]
+    tags:
+      - ${DRONE_COMMIT_SHA}
+      - latest
+    when:
+      event: push
+
+    build_image_tag:
+      image: quay.io/ukhomeofficedigital/drone-docker
+      registry: docker.digital.homeoffice.gov.uk
+      repo: docker.digital.homeoffice.gov.uk/rt/schema-base
+      secrets: [ DOCKER_PASSWORD ]
+      tags:
+        - ${DRONE_TAG}
+      when:
+        event: tag
