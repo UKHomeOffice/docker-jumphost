@@ -1,6 +1,7 @@
 ---
 kind: pipeline
-name: matrix-1
+type: kubernetes
+name: schema-base
 
 platform:
   os: linux
