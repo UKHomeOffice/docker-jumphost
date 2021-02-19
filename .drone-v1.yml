@@ -1,0 +1,70 @@
+---
+kind: pipeline
+name: matrix-1
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+#  - name: build_image
+#    pull: if-not-exists
+#    image: quay.io/ukhomeofficedigital/drone-docker
+#    settings:
+#      build_image_tag:
+#        image: quay.io/ukhomeofficedigital/drone-docker
+#        registry: docker.digital.homeoffice.gov.uk
+#        repo: docker.digital.homeoffice.gov.uk/rt/schema-base
+#        secrets:
+#          - DOCKER_PASSWORD
+#        tags:
+#          - ${DRONE_TAG}
+#        when:
+#          event: tag
+#      registry: docker.digital.homeoffice.gov.uk
+#      repo: docker.digital.homeoffice.gov.uk/rt/schema-base
+#      tags:
+#        - ${DRONE_COMMIT_SHA}
+#        - latest
+#    environment:
+#      DOCKER_PASSWORD:
+#        from_secret: DOCKER_PASSWORD
+#    when:
+#      event:
+#        - push
+
+  - name: build_image
+    pull: if-not-exists
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    commands:
+      # wait for docker service to be up before running docker build
+      - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
+      - docker build -t schema-base:$${DRONE_COMMIT_SHA} . --no-cache
+    when:
+      event:
+        - push
+
+  - name: push_build_image
+    pull: if-not-exists
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    commands:
+      - docker login -u=$${DOCKER_USERNAME} -p=$${DOCKER_PASSWORD} docker.digital.homeoffice.gov.uk
+      - docker tag schema-base:$${DRONE_COMMIT_SHA} docker.digital.homeoffice.gov.uk/rt/schema-base:latest
+      - docker tag schema-base:$${DRONE_COMMIT_SHA} docker.digital.homeoffice.gov.uk/rt/schema-base:$${DRONE_COMMIT_SHA}
+      - docker push docker.digital.homeoffice.gov.uk/rt/schema-base:latest
+      - docker push docker.digital.homeoffice.gov.uk/rt/schema-base:$${DRONE_COMMIT_SHA}
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
+      DOCKER_USERNAME: regt-build-bot
+    when:
+      #    branch:
+      #      - master
+      event:
+        - push
+
+services:
+  - name: docker
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+
+...
