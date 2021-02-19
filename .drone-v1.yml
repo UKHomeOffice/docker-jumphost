@@ -8,32 +8,6 @@ platform:
   arch: amd64
 
 steps:
-#  - name: build_image
-#    pull: if-not-exists
-#    image: quay.io/ukhomeofficedigital/drone-docker
-#    settings:
-#      build_image_tag:
-#        image: quay.io/ukhomeofficedigital/drone-docker
-#        registry: docker.digital.homeoffice.gov.uk
-#        repo: docker.digital.homeoffice.gov.uk/rt/schema-base
-#        secrets:
-#          - DOCKER_PASSWORD
-#        tags:
-#          - ${DRONE_TAG}
-#        when:
-#          event: tag
-#      registry: docker.digital.homeoffice.gov.uk
-#      repo: docker.digital.homeoffice.gov.uk/rt/schema-base
-#      tags:
-#        - ${DRONE_COMMIT_SHA}
-#        - latest
-#    environment:
-#      DOCKER_PASSWORD:
-#        from_secret: DOCKER_PASSWORD
-#    when:
-#      event:
-#        - push
-
   - name: build_image
     pull: if-not-exists
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
@@ -59,8 +33,8 @@ steps:
         from_secret: DOCKER_PASSWORD
       DOCKER_USERNAME: regt-build-bot
     when:
-      #    branch:
-      #      - master
+      branch:
+        - master
       event:
         - push
 
